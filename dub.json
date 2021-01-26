@@ -1,0 +1,11 @@
+{
+	"authors": [
+		"root"
+	],
+	"copyright": "Copyright © 2021, root",
+	"dependencies": {
+	},
+	"description": "Fluid User Interface Definition Language Parser",
+	"license": "proprietary",
+	"name": "flparser"
+}
