@@ -8,6 +8,8 @@ import std.range;
 import std.string;
 import std.conv;
 
+import types;
+
 static string[] FlagProperties = "private protected open selected resizable visible noborder modal hide deactivate divider hotspot"
     .split(" ");
 static string[] ValueProperties = "align xywh label type class box color tooltip image deimage shortcut down_box value selection_color label_type labelcolor labelfont labelsize when minimum maximum step slider_size textfont textsize textcolor code0 code1 code2 code3"
@@ -67,7 +69,7 @@ string toUglyBoxName(string prettyName){
 
 bool getFlag(Property[] properties, string flagproperty)
 {
-    assert(Property.FlagProperties.canFind(flagproperty));
+    assert(FlagProperties.canFind(flagproperty));
 
     return properties.canFind!(x => x.Name == flagproperty);
 }
@@ -84,7 +86,7 @@ string asClassName(string realname)
 
 T get(T)(Property[] properties, string name)
 {
-    assert(Property.ValueProperties.canFind(name));
+    assert(ValueProperties.canFind(name));
 
     foreach (prop; properties)
     {

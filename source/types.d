@@ -8,6 +8,7 @@ import std.range;
 import std.string;
 import std.conv;
 
+import consts;
 import statemachine;
 
 class Property
