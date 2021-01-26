@@ -40,7 +40,7 @@ class Property
     }
 }
 
-class WidgetNode:Node
+class WidgetNode : Node
 {
     static WidgetNode[] all;
     string Name;
@@ -110,11 +110,69 @@ class WidgetNode:Node
                 code ~= child.declare ~ "\n";
             }
 
+            code ~= q{
+                this(void *ptr, bool owned=false){
+                    super(ptr, owned);
+                }
+            };
+
             code ~= "this(int x=%d, int y=%d, int w=%d, int h=%d, string l=\"%s\")\n".format(x,
                     y, w, h, label);
             code ~= "{\n";
             {
-                code ~= "super(x,y,w,h,l);\n";
+                code ~= "super(x,y,w,h,l);{\n";
+
+                {
+                    /////////PROPERTIES/////////
+                    void AssignFlag(string property, string fieldName = null,
+                            string function(string v) transform = (string x) => x)
+                    {
+                        if (fieldName == null)
+                            fieldName = property;
+
+                        if (hasFlag(property))
+                        {
+                            code ~= "this.%s = %s;\n".format(fieldName,
+                                    transform(this.get!string(property)));
+                        }
+                    }
+
+                    AssignFlag("box", "box", x => "Boxtype." ~ x.toUglyBoxName);
+                    AssignFlag("down_box", "down_box", x => "Boxtype." ~ x.toUglyBoxName);
+                    AssignFlag("color");
+                    AssignFlag("labelsize");
+                    AssignFlag("labelcolor");
+                    AssignFlag("labelfont");
+                    AssignFlag("shortcut");
+                    AssignFlag("align", "_align");
+                    AssignFlag("selection_color");
+                    AssignFlag("tooltip");
+                    AssignFlag("value");
+                    AssignFlag("label_type");
+                    AssignFlag("when");
+                    AssignFlag("minimum");
+                    AssignFlag("maximum");
+                    AssignFlag("step");
+                    AssignFlag("slider_size");
+                    AssignFlag("textfont");
+                    AssignFlag("textsize");
+                    AssignFlag("textcolor");
+
+                    //This is not possible cause this.parent is null in toplevel widgets(:facepalm:)
+                    //if (getFlag("resizable"))
+                    //    code ~= "this.parent.resizable=this;";
+
+                    if (getFlag("noborder"))
+                        code ~= "this.border=false;";
+                    if (getFlag("modal"))
+                        code ~= "this.modal();";
+                    if (getFlag("deactivate"))
+                        code ~= "this.deactivate();";
+                    if (getFlag("hotspot"))
+                        code ~= "this.hotspot();";
+                }
+                code~="\n}\n";
+
                 foreach (child; Widgets)
                 {
                     code ~= child.generate;
@@ -256,6 +314,7 @@ class Widget
                         transform(this.get!string(property)));
             }
         }
+        code ~= "{\n";
 
         AssignFlag("box", "box", x => "Boxtype." ~ x.toUglyBoxName);
         AssignFlag("down_box", "down_box", x => "Boxtype." ~ x.toUglyBoxName);
@@ -293,14 +352,16 @@ class Widget
         if (Children.length > 0)
         {
             code ~= "{\n";
-            code ~= "scope(exit) %s.end();\n".format(this.Name);
             foreach (child; Children)
             {
                 code ~= child.generate;
                 code ~= "\n";
             }
+            code ~= "%s.end();\n".format(this.Name);
             code ~= "}\n";
         }
+
+        code ~= "}\n";
 
         return code;
     }
@@ -420,7 +481,7 @@ class FunctionNode : Node
     {
         this.Name = fname;
         this.Properties = properties;
-        this.Code=code;
+        this.Code = code;
     }
 
     override string generate()
@@ -437,12 +498,13 @@ class FunctionNode : Node
 
         code ~= "\n%s %s{\n".format(visibility, this.Name);
 
-        foreach(l; Code.split("\n")){
-            code~="\n"~l;
+        foreach (l; Code.split("\n"))
+        {
+            code ~= "\n" ~ l;
         }
 
-        code ~="}\n";
+        code ~= "}\n";
 
-        return code~"\n";
+        return code ~ "\n";
     }
 }
