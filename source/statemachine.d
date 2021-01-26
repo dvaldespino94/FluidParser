@@ -109,7 +109,7 @@ class StateMachine
 
             case "widget_class":
                 Ptr++;
-                auto w = new WidgetClass(this);
+                Nodes ~= new WidgetNode(this);
                 continue;
 
             default:

@@ -40,9 +40,9 @@ class Property
     }
 }
 
-class WidgetClass
+class WidgetNode:Node
 {
-    static WidgetClass[] all;
+    static WidgetNode[] all;
     string Name;
 
     Property[] Properties;
@@ -55,7 +55,7 @@ class WidgetClass
 
         this.M = m;
         this.Name = m.readString();
-        //writefln("=> WidgetClass %s", this.Name);
+        //writefln("=> WidgetNode %s", this.Name);
         this.Properties = m.readProperties();
         //writefln("Properties: %s",this.Properties);
         this.Widgets = getWidgets();
@@ -84,10 +84,8 @@ class WidgetClass
         return this.Properties.canFind!(x => x.Name == name);
     }
 
-    string generate()
+    override string generate()
     {
-        writefln("TOPLEVEL %s", this.Name);
-
         string code;
         int x, y, w = 100, h = 100;
 
@@ -258,7 +256,6 @@ class Widget
 
             if (hasFlag(property))
             {
-                writeln("Found property %s\n".format(property));
                 code ~= "%s.%s = %s;\n".format(this.Name, fieldName,
                         transform(this.get!string(property)));
             }
@@ -296,8 +293,6 @@ class Widget
             code ~= "%s.deactivate();".format(this.Name);
         if (getFlag("hotspot"))
             code ~= "%s.hotspot();".format(this.Name);
-
-        writeln(pad("\t", depth()) ~ "Generating widget %s".format(this.Name));
 
         if (Children.length > 0)
         {
