@@ -28,6 +28,7 @@ string pad(string c, int count)
 class StateMachine
 {
     string[] Words;
+    Node[] Nodes;
     int Ptr;
 
     this(string data)
@@ -52,6 +53,7 @@ class StateMachine
 
                 case '\t':
                 case ' ':
+                case '\n':
                     if (!word.empty)
                     {
                         Words ~= word;
@@ -74,50 +76,40 @@ class StateMachine
             {
             case "version":
                 Ptr++;
-                readString();
-                //writefln("VERSION '%s'", readString());
+                Nodes ~= new VersionNode([readString()]);
                 continue;
 
             case "header_name":
                 Ptr++;
-                readString();
-                //writefln("HEADER_NAME '%s'", readString());
+                Nodes ~= new HeaderNode(["header_name", readString()]);
                 continue;
 
             case "code_name":
                 Ptr++;
-                readString();
-                //writefln("CODE_NAME '%s'", readString());
+                Nodes ~= new HeaderNode(["code_name", readString()]);
                 continue;
 
             case "comment":
                 Ptr++;
-                readString();
+                Nodes ~= new CommentNode([readString()]);
+                //I don't know what to do with this properties, so, just drop them
                 readProperties();
-                //writefln("COMMENT:\n===========\n%s\n===========", readString());
-                //writefln("Reading comment's properties starting @%d('%s')", Ptr, Words[Ptr]);
-                //writefln("\tPROPERTIES: %s", readProperties());
                 continue;
 
             case "decl":
                 Ptr++;
-                readString();
-                readProperties();
-                //writefln("DECL:\n===========\n%s\n===========", readString());
-                //writefln("\tPROPERTIES: %s", readProperties());
+                Nodes ~= new DeclNode([readString], readProperties());
                 continue;
 
             case "Function":
                 Ptr++;
-                readString();
-                readProperties();
-                //writefln("FUNCTION:\n===========\n%s\n===========", readString());
-                //writefln("\tPROPERTIES: %s", readProperties());
+                Nodes ~= new FunctionNode(readString(), readProperties(), readString());
+                //Drop the code's properties
                 continue;
 
             case "widget_class":
                 Ptr++;
-                auto w=new WidgetClass(this);
+                auto w = new WidgetClass(this);
                 continue;
 
             default:

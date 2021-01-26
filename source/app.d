@@ -27,15 +27,20 @@ void main(string[] args)
 
     string data = readText(fname);
 
-	auto m=new StateMachine(data);
+    auto m = new StateMachine(data);
 
-	string dump=`
-import fltk_d;
+    string dump = `import fltk_d;
 import core.stdc.stdint;
-	`;
-	foreach(wclass;WidgetClass.all){
-		dump~=wclass.generate~"\n";
-	}
 
-	std.file.write("test.d",dump);
+`;
+    foreach (node; m.Nodes)
+    {
+        dump ~= node.generate;
+    }
+    //foreach (wclass; WidgetClass.all)
+    //{
+    //dump ~= wclass.generate ~ "\n";
+    //}
+
+    std.file.write("test.d", dump);
 }

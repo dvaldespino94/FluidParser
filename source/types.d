@@ -245,8 +245,9 @@ class Widget
         }
 
         //code ~= "//%s\n".format(this.Properties);
-        code ~= "%s=new %s(%(%d, %)%s);\n".format(this.Name, this.realType.asClassName,
-                this.get!string("xywh").split(" ").map!(x => x.to!int), label);
+        code ~= "%s=new %s(%(%d, %)%s);\n".format(this.Name,
+                this.realType.asClassName, this.get!string("xywh").split(" ")
+                .map!(x => x.to!int), label);
 
         /////////PROPERTIES/////////
         void AssignFlag(string property, string fieldName = null,
@@ -342,3 +343,111 @@ class Widget
     }
 }
 
+abstract class Node
+{
+    string generate();
+}
+
+class VersionNode : Node
+{
+    string Version;
+
+    this(string[] words)
+    {
+        this.Version = words[0];
+    }
+
+    override string generate()
+    {
+        return "//Generated using FLTK Version '%s'\n".format(Version);
+    }
+}
+
+class HeaderNode : Node
+{
+    string Key;
+    string[] Value;
+
+    this(string[] words)
+    {
+        this.Key = words[0];
+        this.Value = words[1 .. $];
+    }
+
+    override string generate()
+    {
+        return "//%s = '%s'\n".format(this.Key, this.Value.join(" "));
+    }
+}
+
+class CommentNode : Node
+{
+    string[] RawComment;
+
+    this(string[] words)
+    {
+        this.RawComment = words;
+    }
+
+    override string generate()
+    {
+        return "/*\n%s\n*/\n".format(this.RawComment.join(" "));
+    }
+}
+
+class DeclNode : Node
+{
+    string[] Decl;
+    Property[] Properties;
+
+    this(string[] words, Property[] properties)
+    {
+        this.Decl = words;
+        this.Properties = properties;
+    }
+
+    override string generate()
+    {
+        string visibility = "public";
+
+        if (this.Properties.getFlag("private"))
+            visibility = "private";
+
+        if (this.Properties.getFlag("protected"))
+            visibility = "protected";
+        return "%s%s\n".format(visibility, Decl.join("\n"));
+    }
+}
+
+class FunctionNode : Node
+{
+    string Name;
+    Property[] Properties;
+    string Code;
+
+    this(string fname, Property[] properties, string code)
+    {
+        this.Name = fname;
+        this.Properties = properties;
+        this.Code=code;
+    }
+
+    override string generate()
+    {
+        string visibility = "public";
+
+        if (this.Properties.getFlag("private"))
+            visibility = "private";
+
+        if (this.Properties.getFlag("protected"))
+            visibility = "protected";
+
+        string code = "\n//%s function %s\n".format(visibility, this.Name);
+        
+        foreach(l; Code.split("\n")){
+            code~="//"~l;
+        }
+
+        return code~"\n";
+    }
+}
