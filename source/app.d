@@ -6,6 +6,7 @@ import std.file;
 import std.array;
 import std.range;
 import std.string;
+import std.path;
 
 import statemachine;
 import types;
@@ -17,6 +18,9 @@ void main(string[] args)
         writeln("Wrong param count!");
         return;
     }
+
+    if (args.length==2)
+        args~=args[1].stripExtension~".d";
 
     string fname = args[1];
     if (!exists(fname))
@@ -42,5 +46,5 @@ import core.stdc.stdint;
     //dump ~= wclass.generate ~ "\n";
     //}
 
-    std.file.write("test.d", dump);
+    std.file.write(args[2], dump);
 }

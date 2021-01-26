@@ -410,7 +410,7 @@ class DeclNode : Node
 
         if (this.Properties.getFlag("protected"))
             visibility = "protected";
-        return "%s%s\n".format(visibility, Decl.join("\n"));
+        return "%s %s\n".format(visibility, Decl.join("\n"));
     }
 }
 
@@ -437,11 +437,15 @@ class FunctionNode : Node
         if (this.Properties.getFlag("protected"))
             visibility = "protected";
 
-        string code = "\n//%s function %s\n".format(visibility, this.Name);
-        
+        string code;
+
+        code ~= "\n%s %s{\n".format(visibility, this.Name);
+
         foreach(l; Code.split("\n")){
-            code~="//"~l;
+            code~="\n"~l;
         }
+
+        code ~="}\n";
 
         return code~"\n";
     }

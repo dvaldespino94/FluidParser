@@ -10,7 +10,7 @@ import std.conv;
 
 import types;
 
-static string[] FlagProperties = "private protected open selected resizable visible noborder modal hide deactivate divider hotspot"
+static string[] FlagProperties = "private local protected open selected resizable visible noborder modal hide deactivate divider hotspot"
     .split(" ");
 static string[] ValueProperties = "align xywh label type class box color tooltip image deimage shortcut down_box value selection_color label_type labelcolor labelfont labelsize when minimum maximum step slider_size textfont textsize textcolor code0 code1 code2 code3"
     .split(" ");

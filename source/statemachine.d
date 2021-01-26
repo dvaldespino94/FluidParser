@@ -25,6 +25,48 @@ string pad(string c, int count)
     return ret;
 }
 
+string[] tokenize(string data)
+{
+    string[] Words;
+    foreach (line; data.split("\n").filter!(x => x.length > 0 && x.strip[0] != '#'))
+    {
+        string word;
+
+        foreach (c; line)
+        {
+            switch (c)
+            {
+            case '}':
+            case '{':
+                if (!word.empty)
+                {
+                    Words ~= word;
+                    word = "";
+                }
+                Words ~= "%c".format(c);
+                break;
+
+            case '\t':
+            case ' ':
+            case '\n':
+                if (!word.empty)
+                {
+                    Words ~= word;
+                    word = "";
+                }
+                break;
+
+            default:
+                word ~= c;
+            }
+        }
+        if (!word.empty)
+            Words ~= word;
+    }
+
+    return Words;
+}
+
 class StateMachine
 {
     string[] Words;
@@ -33,41 +75,7 @@ class StateMachine
 
     this(string data)
     {
-        foreach (line; data.split("\n").filter!(x => x.length > 0 && x.strip[0] != '#'))
-        {
-            string word;
-
-            foreach (c; line)
-            {
-                switch (c)
-                {
-                case '}':
-                case '{':
-                    if (!word.empty)
-                    {
-                        Words ~= word;
-                        word = "";
-                    }
-                    Words ~= "%c".format(c);
-                    break;
-
-                case '\t':
-                case ' ':
-                case '\n':
-                    if (!word.empty)
-                    {
-                        Words ~= word;
-                        word = "";
-                    }
-                    break;
-
-                default:
-                    word ~= c;
-                }
-            }
-            if (!word.empty)
-                Words ~= word;
-        }
+        Words=tokenize(data);
 
         Ptr = 0;
         while (Ptr < Words.length)
@@ -104,7 +112,6 @@ class StateMachine
             case "Function":
                 Ptr++;
                 Nodes ~= new FunctionNode(readString(), readProperties(), readString());
-                //Drop the code's properties
                 continue;
 
             case "widget_class":
@@ -113,7 +120,8 @@ class StateMachine
                 continue;
 
             default:
-                assert(0, "Unknown id '%s'".format(Word));
+                assert(0, "Unknown id '%s' @%d\n%(%s %)\n".format(Word, Ptr,
+                        Words[Ptr - 5 .. Ptr + 5]));
             }
         }
     }
