@@ -55,9 +55,9 @@ class WidgetNode:Node
 
         this.M = m;
         this.Name = m.readString();
-        //writefln("=> WidgetNode %s", this.Name);
+
         this.Properties = m.readProperties();
-        //writefln("Properties: %s",this.Properties);
+
         this.Widgets = getWidgets();
     }
 
@@ -115,9 +115,6 @@ class WidgetNode:Node
             code ~= "{\n";
             {
                 code ~= "super(x,y,w,h,l);\n";
-                //if (hasFlag("box"))
-                //  code ~= "this.box = Boxtype.%s;\n".format(get!string("box"));
-
                 foreach (child; Widgets)
                 {
                     code ~= child.generate;
@@ -171,9 +168,9 @@ class Widget
             this.Anon = true;
             this.Name = "tempname%02d".format(Widget.TempNameCount++);
         }
-        //writefln(pad("\t", depth) ~ "Widget %s(%s)", this.Name, this.Type);
+
         this.Properties = M.readProperties;
-        //writefln("Properties: %s",this.Properties);
+
         if (M.Word == "{")
         {
             M.Ptr++;
@@ -242,7 +239,6 @@ class Widget
             label = ",\"%s\"".format(get!string("label"));
         }
 
-        //code ~= "//%s\n".format(this.Properties);
         code ~= "%s=new %s(%(%d, %)%s);\n".format(this.Name,
                 this.realType.asClassName, this.get!string("xywh").split(" ")
                 .map!(x => x.to!int), label);
